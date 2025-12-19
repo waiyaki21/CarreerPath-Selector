@@ -8,6 +8,27 @@ import tkinter.font as tkFont
 
 # Initialize main Tkinter window
 root = tk.Tk()
+fontFamily = {
+    "default": "Arial",
+    "alternate": "Century Gothic",
+    "secondary": "Calibri"
+} 
+fontFamilies = {
+    "default": fontFamily["default"],
+    "headers": fontFamily["default"],
+    "labels": fontFamily["alternate"],
+    "buttons": fontFamily["default"],
+    "text": fontFamily["alternate"],
+    "table": fontFamily["secondary"],
+    "menu": fontFamily["default"]
+}
+fontSize = {
+    "small": 8,
+    "medium": 10,
+    "default": 11,
+    "large": 12,
+    "xlarge": 14
+}
 
 # === Sample Pathways and Tracks ===
 pathway_tracks = {
@@ -1156,7 +1177,7 @@ def process_raw_data(pathway, track, filter_keywords=None):
 
 def auto_size_columns(tree):
     default_font = tkFont.nametofont("TkDefaultFont")
-    default_font.configure(family="Calibri", size=10)
+    default_font.configure(family=fontFamilies["table"], size=fontSize["medium"])
 
     for col in tree["columns"]:
         max_width = default_font.measure(col)
@@ -1174,10 +1195,6 @@ class SubjectApp(ttk.Frame):
 
         self.style = style  # 🔑 store ttkbootstrap style
 
-        # Fonts
-        self.ui_font = tkFont.Font(family="Calibri", size=8)
-        self.ui_font_bold = tkFont.Font(family="Calibri", size=8, weight="bold")
-
         self._setup_styles()
 
         self.pack(fill=BOTH, expand=True)
@@ -1185,8 +1202,8 @@ class SubjectApp(ttk.Frame):
 
     def create_widgets(self):
         # === Label Frame for Form ===
-        self.option_lf = ttk.Labelframe(self, text="Complete the form to begin your search", padding=15, style="Custom.TLabelframe")
-        self.option_lf.pack(fill=X, padx=10, pady=10)
+        self.option_lf = ttk.Labelframe(self, text="Fill in the details", padding=15, style="Custom.TLabelframe")
+        self.option_lf.pack(fill=X, padx=4, pady=4)
 
         # === Form Controls ===
         self.p_var = tk.StringVar(value="ALL")
@@ -1194,6 +1211,49 @@ class SubjectApp(ttk.Frame):
         self.search_var = tk.StringVar()
         self.search_toggle_var = tk.BooleanVar(value=True)
         self.download_toggle_var = tk.BooleanVar(value=True)
+        self.subjects_toggle_var = tk.BooleanVar(value=True)
+
+        # === Header Container ===
+        # header_frame = ttk.Frame(self.option_lf)
+        # header_frame.pack(fill=X, padx=10, pady=(10, 5))
+
+        # header_frame.columnconfigure(0, weight=3)  # Title
+        # header_frame.columnconfigure(1, weight=1)  # Theme menu
+
+        # header_label = ttk.Label(
+        #     header_frame,
+        #     text="📘 Subject Search & Export Tool",
+        #     font=self.ui_font_label,
+        #     bootstyle="primary"
+        # )
+        # header_label.grid(row=0, column=0, sticky=W)
+
+        # self.theme_var = tk.StringVar(value="flatly")
+
+        # self.theme_menu_btn = ttk.Menubutton(
+        #     header_frame,
+        #     textvariable=self.theme_var,
+        #     direction="below",
+        #     bootstyle="outline-secondary"
+        # )
+        # self.theme_menu_btn.grid(row=0, column=1, sticky=E)
+
+        # theme_menu = tk.Menu(self.theme_menu_btn, tearoff=False)
+        # self.theme_menu_btn["menu"] = theme_menu
+
+        # available_themes = [
+        #     "cosmo", "flatly", "journal", "litera",
+        #     "lumen", "minty", "pulse", "sandstone",
+        #     "united", "yeti", "morph", "simplex",
+        #     "cerculean", "darkly", "superhero",
+        #     "solar", "cyborg", "vapor"
+        # ]
+
+        # for theme in available_themes:
+        #     theme_menu.add_command(
+        #         label=theme.capitalize(),
+        #         command=lambda t=theme: self._change_theme(t)
+        #     )
 
         # === Row container ===
         row_frame = ttk.Frame(self.option_lf)
@@ -1203,6 +1263,9 @@ class SubjectApp(ttk.Frame):
         row_frame.columnconfigure(0, weight=1)  # Pathway (25%)
         row_frame.columnconfigure(1, weight=1)  # Track (25%)
         row_frame.columnconfigure(2, weight=2)  # Search (50%)
+
+        # Create an empty menu for the Menubutton
+        menu_font = tkFont.Font(family=fontFamilies["menu"], size=fontSize["medium"])
 
         # === Pathway Column ===
         pathway_frame = ttk.Frame(row_frame)
@@ -1216,7 +1279,7 @@ class SubjectApp(ttk.Frame):
         self.p_menu_btn.pack(fill=X)
 
         # Menu
-        pathway_menu = tk.Menu(self.p_menu_btn, tearoff=False)
+        pathway_menu = tk.Menu(self.p_menu_btn, tearoff=False, font=menu_font)
         self.p_menu_btn["menu"] = pathway_menu
 
         # Populate menu items
@@ -1242,14 +1305,7 @@ class SubjectApp(ttk.Frame):
         self.t_menu = ttk.Menubutton( track_frame, textvariable=self.t_var, direction="below", style="Custom.TMenubutton" )
         self.t_menu.pack(fill=X)
 
-        # Create an empty menu for the Menubutton
-        menu_font = tkFont.Font(family="Calibri", size=8)
-
-        self.t_menu_menu = tk.Menu(
-            self.t_menu,
-            tearoff=False,
-            font=menu_font
-        )
+        self.t_menu_menu = tk.Menu( self.t_menu, tearoff=False, font=menu_font )
         self.t_menu["menu"] = self.t_menu_menu
 
         # Default value
@@ -1259,10 +1315,11 @@ class SubjectApp(ttk.Frame):
         toggle_row = ttk.Frame(self.option_lf)
         toggle_row.pack(fill=X, pady=(5, 8))
 
-        # Column layout: 25% | 25% | 50%
+        # Column layout: 10% | 10% | 10% | 70%
         toggle_row.columnconfigure(0, weight=1)
         toggle_row.columnconfigure(1, weight=1)
-        toggle_row.columnconfigure(2, weight=8)
+        toggle_row.columnconfigure(2, weight=1)
+        toggle_row.columnconfigure(3, weight=7)
 
         # Search Toggle
         self.search_toggle = ttk.Checkbutton(
@@ -1275,26 +1332,38 @@ class SubjectApp(ttk.Frame):
         self.search_toggle.grid(row=0, column=0, sticky=W)
 
         # Download Toggle
-        self.download_toggle_var = tk.BooleanVar(value=True)
-
         self.download_toggle = ttk.Checkbutton(
             toggle_row,
-            text="Enable Download",
+            text= "Enable Download",
             variable=self.download_toggle_var,
-            bootstyle="round-toggle"
+            bootstyle="round-toggle",
+            command=self._update_download_button_state
         )
         self.download_toggle.grid(row=0, column=1, sticky=E)
 
-        # Row Count Label
-        self.row_count_var = tk.StringVar(value="Showing: 0 Selections")
+        # Subjects Toggle
+        self.subjects_toggle_var = tk.BooleanVar(value=True)
 
+        self.subjects_toggle = ttk.Checkbutton(
+            toggle_row,
+            state=DISABLED,
+            text="Combine Subjects",
+            variable=self.subjects_toggle_var,
+            bootstyle="round-toggle",
+            command=self._update_subject_state
+        )
+        self.subjects_toggle.grid(row=0, column=2, sticky=E)
+
+        # Row Count Label
+        self.row_count_var = tk.StringVar(value="0 SELECTIONS")
         self.row_count_label = ttk.Label(
             toggle_row,
             textvariable=self.row_count_var,
             anchor=E,
-            bootstyle="info"
+            bootstyle="info",
+            font=self.ui_font_info
         )
-        self.row_count_label.grid(row=0, column=2, sticky="nsew")
+        self.row_count_label.grid(row=0, column=3, sticky="nsew")
 
         # === Search Entry ===
         search_frame = ttk.Frame(row_frame)
@@ -1307,7 +1376,6 @@ class SubjectApp(ttk.Frame):
             textvariable=self.search_var
         )
         self.search_entry.pack(fill=X)
-
         self.search_entry.bind("<KeyRelease>", lambda e: self.update_table())
 
         # === Table ===
@@ -1325,6 +1393,7 @@ class SubjectApp(ttk.Frame):
         self.update_tracks()
         self.update_table()
         self._toggle_search_entry()
+        self._update_download_button_state()
 
     def update_tracks(self):
         pathway = self.p_var.get()
@@ -1368,11 +1437,15 @@ class SubjectApp(ttk.Frame):
         # ✅ update row counter
         row_count = len(records)
         self.row_count_var.set(
-            f"Showing: {row_count} row{'s' if row_count != 1 else ''}"
+            f"({row_count}) Available Selection{'s' if row_count != 1 else ''}".upper()
         )
         self._update_row_count_style(row_count)
 
     def download_as_excel(self):
+        if not self.download_toggle_var.get():
+            messagebox.showwarning( "Download Disabled", "Enable the download toggle to export data." )
+            return
+    
         pathway = self.p_var.get()
         track = self.t_var.get()
         keywords = [kw.strip().lower() for kw in self.search_var.get().split(',')] if self.search_toggle_var.get() else None
@@ -1403,19 +1476,20 @@ class SubjectApp(ttk.Frame):
         style = ttk.Style()
 
         # Base fonts
-        self.ui_font = tkFont.Font(family="Calibri", size=11)
-        self.ui_font_bold = tkFont.Font(family="Calibri", size=11, weight="bold")
+        self.ui_font = tkFont.Font(family=fontFamilies["default"], size=fontSize["default"])
+        self.ui_font_header = tkFont.Font(family=fontFamilies["default"], size=fontSize["large"], weight="bold", underline=True)
+        self.ui_font_label = tkFont.Font(family=fontFamilies["labels"], size=fontSize["large"], weight="bold", underline=False)
+        self.ui_font_info = tkFont.Font(family=fontFamilies["text"], size=fontSize["xlarge"], underline=False)
 
         # Treeview
         style.configure( "Custom.Treeview", font=self.ui_font, rowheight=28, borderwidth=1, relief="solid" )
-
-        style.configure( "Custom.Treeview.Heading", font=self.ui_font_bold, borderwidth=1, relief="solid" )
-
+        style.configure( "Custom.Treeview.Heading", font=self.ui_font_header, borderwidth=1, relief="solid" )
         # Labelframe
-        style.configure( "Custom.TLabelframe", font=self.ui_font_bold, padding=10 )
-
+        style.configure( "Custom.TLabelframe", font=self.ui_font_header, padding=10 )
         # Menubutton (button itself)
         style.configure( "Custom.TMenubutton", font=self.ui_font, padding=6 )
+        # Text
+        style.configure( "Custom.TText", font=self.ui_font_info )
 
     def _toggle_search_entry(self):
         """Enable/disable search entry based on toggle"""
@@ -1437,6 +1511,31 @@ class SubjectApp(ttk.Frame):
             style = "info"
 
         self.row_count_label.configure(bootstyle=style)
+
+    def _update_download_button_state(self):
+        if self.download_toggle_var.get():
+            self.download_btn.configure(
+                state=NORMAL,
+                text="📥 Download Excelsheet",
+                bootstyle="success"
+            )
+        else:
+            self.download_btn.configure(
+                # state=DISABLED,
+                text="⛔ Download Disabled",
+                bootstyle="secondary"
+            )
+
+    def _update_subject_state(self):
+        messagebox.showinfo(
+            "Info",
+            "This toggle is currently for future use and has no effect."
+        )
+        pass
+
+    # def _change_theme(self, theme_name):
+    #     self.theme_var.set(theme_name)
+    #     self.style.theme_use(theme_name)
 
 # === Launch App ===
 if __name__ == "__main__":
